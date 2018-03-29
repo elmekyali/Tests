@@ -1,9 +1,13 @@
 package gossips;
 
+import parsers.DefaultParser;
+import parsers.Parser;
+
 public abstract class Gossip {
 
     protected final String name;
     protected String Message = "";
+    Parser parser = new DefaultParser();
 
     public Gossip(String name) {
         this.name = name;

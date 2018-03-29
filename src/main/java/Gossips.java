@@ -1,6 +1,7 @@
 
+import gossips.Agent;
+import gossips.Doctor;
 import gossips.Gossip;
-import gossips.Talk;
 import parsers.DefaultParser;
 import parsers.Parser;
 
@@ -9,7 +10,7 @@ import java.util.*;
 public class Gossips {
 
     private Map<Gossip, Gossip> discussion = new LinkedHashMap<>();
-    private Map<String , Gossip> Gossips = new HashMap<>();
+    private Map<String , Gossip> gossips = new HashMap<>();
     private Parser parser = new DefaultParser();
     private String gossip = null;
     private String message = "";
@@ -18,8 +19,8 @@ public class Gossips {
     {
         for (String name : names)
         {
-            Gossips.put(parser.parseName(name , " ") , parser.parseNameWithType(name , " "));
-            discussion.put(Gossips.get(parser.parseName(name , " ")) , null);
+            gossips.put(parser.parseName(name , " ") , parser.parseNameWithType(name , " "));
+            discussion.put(gossips.get(parser.parseName(name , " ")) , null);
         }
     }
 
@@ -37,13 +38,19 @@ public class Gossips {
         }
         else if(message.equals(""))
         {
-            Gossip from = Gossips.get(gossip);
-            Gossip to   = Gossips.get(Gossip);
+            Gossip from = gossips.get(gossip);
+            Gossip to   = gossips.get(Gossip);
+
+            if(from instanceof Doctor)
+                ((Doctor) from).getNextGossips().add(to);
+            if (to instanceof Agent)
+                ((Agent) to).getAgentGossips().add(from);
+
             discussion.put(from , to);
         }
         if(!message.equals(""))
         {
-            Gossips.get(Gossip).say(message);
+            gossips.get(Gossip).say(message);
             message = "";
         }
         return this;
@@ -57,11 +64,16 @@ public class Gossips {
 
     public String ask(String Gossip)
     {
-        return Gossips.get(Gossip).ask();
+        return gossips.get(Gossip).ask();
     }
 
     public void spread()
     {
+        for (Map.Entry<String , Gossip> gossip : gossips.entrySet()) {
+            if ((gossip.getValue() instanceof Agent) && ((Agent) gossip.getValue()).getAgentGossips().isEmpty()) {
+                ((Agent) gossip.getValue()).say();
+            }
+        }
         System.out.println("************************");
         for (Map.Entry<Gossip , Gossip> discussionEntry : discussion.entrySet())
         {
